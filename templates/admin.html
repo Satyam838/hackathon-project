@@ -6,11 +6,12 @@
     <title>Admin Dashboard - HR Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="#">
                 <i class="fas fa-shield-alt me-2"></i>
@@ -22,24 +23,34 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#" onclick="showSection('dashboard')">Dashboard</a>
+                        <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="showSection('employees')">Employees</a>
+                        <a class="nav-link" href="#" onclick="showSection('employees')">
+                            <i class="fas fa-users me-1"></i>Employees
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="showSection('attendance')">Attendance</a>
+                        <a class="nav-link" href="#" onclick="showSection('attendance')">
+                            <i class="fas fa-calendar-check me-1"></i>Attendance
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="showSection('leaves')">Leave Requests</a>
+                        <a class="nav-link" href="#" onclick="showSection('leaves')">
+                            <i class="fas fa-calendar-times me-1"></i>Leave Requests
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="showSection('payroll')">Payroll</a>
+                        <a class="nav-link" href="#" onclick="showSection('payroll')">
+                            <i class="fas fa-money-bill-wave me-1"></i>Payroll
+                        </a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item me-2">
-                        <button class="btn btn-outline-secondary btn-sm" id="themeToggle" onclick="toggleTheme()">
+                    <li class="nav-item me-3">
+                        <button class="btn" id="themeToggle" onclick="toggleTheme()">
                             <i class="fas fa-sun" id="themeIcon"></i>
                         </button>
                     </li>
@@ -195,33 +206,104 @@
         <div id="attendanceSection" class="content-section" style="display: none;">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Attendance Management</h5>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAttendanceModal">
-                        <i class="fas fa-plus me-2"></i>Mark Attendance
-                    </button>
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        Attendance Management
+                    </h5>
+                    <div>
+                        <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#bulkAttendanceModal">
+                            <i class="fas fa-users-cog me-2"></i>Bulk Attendance
+                        </button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAttendanceModal">
+                            <i class="fas fa-plus me-2"></i>Mark Attendance
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
+                    <!-- Enhanced Filters -->
                     <div class="row mb-3">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label">Filter by Employee</label>
                             <select class="form-control" id="attendanceEmployeeFilter">
                                 <option value="">All Employees</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label">Filter by Date</label>
                             <input type="date" class="form-control" id="attendanceDateFilter">
                         </div>
-                        <div class="col-md-4">
-                            <button class="btn btn-secondary" onclick="filterAttendance()">Filter</button>
+                        <div class="col-md-3">
+                            <label class="form-label">Filter by Status</label>
+                            <select class="form-control" id="attendanceStatusFilter">
+                                <option value="">All Status</option>
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent</option>
+                                <option value="Late">Late</option>
+                                <option value="Half Day">Half Day</option>
+                                <option value="Work From Home">Work From Home</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Actions</label>
+                            <div>
+                                <button class="btn btn-secondary" onclick="filterAttendance()">
+                                    <i class="fas fa-filter me-1"></i>Filter
+                                </button>
+                                <button class="btn btn-outline-secondary ms-2" onclick="exportAttendanceReport()">
+                                    <i class="fas fa-download me-1"></i>Export
+                                </button>
+                            </div>
                         </div>
                     </div>
+                    
+                    <!-- Attendance Statistics -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="card bg-success">
+                                <div class="card-body text-center">
+                                    <h6>Present Today</h6>
+                                    <h4 id="presentTodayCount">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-danger">
+                                <div class="card-body text-center">
+                                    <h6>Absent Today</h6>
+                                    <h4 id="absentTodayCount">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning">
+                                <div class="card-body text-center">
+                                    <h6>Late Today</h6>
+                                    <h4 id="lateTodayCount">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info">
+                                <div class="card-body text-center">
+                                    <h6>Attendance Rate</h6>
+                                    <h4 id="attendanceRate">0%</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="table-responsive">
-                        <table class="table table-dark table-striped">
+                        <table class="table table-dark table-striped table-hover">
                             <thead>
                                 <tr>
                                     <th>Employee</th>
                                     <th>Date</th>
                                     <th>Status</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
                                     <th>Hours Worked</th>
+                                    <th>Remarks</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="attendanceTableBody">
@@ -266,8 +348,9 @@
 
         <!-- Payroll Section -->
         <div id="payrollSection" class="content-section" style="display: none;">
+            <!-- Enhanced Statistics Cards -->
             <div class="row mb-4">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="card bg-primary">
                         <div class="card-body text-center">
                             <h6>Total Payroll</h6>
@@ -276,30 +359,48 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="card bg-success">
                         <div class="card-body text-center">
-                            <h6>Paid Salaries</h6>
-                            <h4 id="paidSalariesCount">0</h4>
+                            <h6>Deposited</h6>
+                            <h4 id="depositedSalariesCount">0</h4>
                             <small>Employees</small>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="card bg-warning">
                         <div class="card-body text-center">
-                            <h6>Pending Salaries</h6>
+                            <h6>Pending</h6>
                             <h4 id="pendingSalariesCount">0</h4>
-                            <small>Employees</small>
+                            <small>Deposits</small>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="card bg-info">
                         <div class="card-body text-center">
-                            <h6>Average Salary</h6>
-                            <h4 id="avgSalaryPayroll">$0</h4>
+                            <h6>Average Gross</h6>
+                            <h4 id="avgGrossSalary">$0</h4>
                             <small>Per Employee</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card bg-secondary">
+                        <div class="card-body text-center">
+                            <h6>Total Deductions</h6>
+                            <h4 id="totalDeductions">$0</h4>
+                            <small>This Month</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card bg-dark">
+                        <div class="card-body text-center">
+                            <h6>Net Disbursed</h6>
+                            <h4 id="netDisbursed">$0</h4>
+                            <small>This Month</small>
                         </div>
                     </div>
                 </div>
@@ -307,38 +408,55 @@
             
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Payroll Management</h5>
+                    <h5 class="mb-0">
+                        <i class="fas fa-money-check-alt me-2"></i>
+                        Comprehensive Payroll Management
+                    </h5>
                     <div>
-                        <button class="btn btn-info me-2" onclick="testPayrollSystem()">
-                            <i class="fas fa-bug me-2"></i>Test System
+                        <button class="btn btn-outline-info me-2" onclick="showPayrollSummary()">
+                            <i class="fas fa-chart-pie me-2"></i>Summary Report
                         </button>
                         <button class="btn btn-success me-2" onclick="generateMonthlyPayroll()">
-                            <i class="fas fa-magic me-2"></i>Auto Generate Payroll
+                            <i class="fas fa-magic me-2"></i>Auto Generate
                         </button>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPayrollModal">
-                            <i class="fas fa-edit me-2"></i>Manual Entry
+                            <i class="fas fa-plus me-2"></i>Manual Entry
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
+                    <!-- Enhanced Filters -->
                     <div class="row mb-3">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label">Filter by Month</label>
                             <select class="form-control" id="payrollMonthFilter">
                                 <option value="">All Months</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label">Filter by Status</label>
                             <select class="form-control" id="payrollStatusFilter">
                                 <option value="">All Status</option>
                                 <option value="Paid">Paid</option>
                                 <option value="Pending">Pending</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <button class="btn btn-secondary" onclick="filterPayroll()">Filter</button>
-                            <button class="btn btn-outline-secondary ms-2" onclick="exportPayrollReport()">
-                                <i class="fas fa-download me-1"></i>Export
-                            </button>
+                        <div class="col-md-3">
+                            <label class="form-label">Filter by Employee</label>
+                            <select class="form-control" id="payrollEmployeeFilter">
+                                <option value="">All Employees</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Actions</label>
+                            <div>
+                                <button class="btn btn-secondary" onclick="filterPayroll()">
+                                    <i class="fas fa-filter me-1"></i>Filter
+                                </button>
+                                <button class="btn btn-outline-secondary ms-2" onclick="exportDetailedPayrollReport()">
+                                    <i class="fas fa-download me-1"></i>Export
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -347,39 +465,37 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <span><i class="fas fa-check-square me-2"></i>Selected records</span>
                             <div>
-                                <button class="btn btn-sm btn-success me-2" onclick="bulkUpdatePayrollStatus()">
-                                    <i class="fas fa-check me-1"></i>Mark as Paid
+                                <button class="btn btn-sm btn-success me-2" onclick="bulkProcessDeposits()">
+                                    <i class="fas fa-university me-1"></i>Process Deposits
                                 </button>
-                                <button class="btn btn-sm btn-secondary" onclick="document.querySelectorAll('input[name=payrollSelect]').forEach(cb => cb.checked = false); toggleBulkActions();">
+                                <button class="btn btn-sm btn-warning me-2" onclick="bulkGeneratePayslips()">
+                                    <i class="fas fa-file-pdf me-1"></i>Generate Payslips
+                                </button>
+                                <button class="btn btn-sm btn-secondary" onclick="clearPayrollSelection()">
                                     <i class="fas fa-times me-1"></i>Clear Selection
                                 </button>
                             </div>
                         </div>
                     </div>
                     
+                    <!-- Detailed Payroll Table -->
                     <div class="table-responsive">
-                        <table class="table table-dark table-striped">
-                            <thead>
+                        <table class="table table-dark table-striped table-hover">
+                            <thead class="table-dark">
                                 <tr>
-                                    <th>
-                                        <input type="checkbox" id="selectAllPayroll" onchange="selectAllPayroll()">
-                                    </th>
+                                    <th><input type="checkbox" id="selectAllPayroll" onchange="selectAllPayroll()"></th>
                                     <th>Employee</th>
                                     <th>Month</th>
-                                    <th>Basic Salary</th>
-                                    <th>HRA</th>
-                                    <th>Allowances</th>
-                                    <th>Overtime</th>
-                                    <th>Bonus</th>
-                                    <th>Deductions</th>
-                                    <th>Tax</th>
+                                    <th>Gross Salary</th>
+                                    <th>Total Deductions</th>
                                     <th>Net Salary</th>
-                                    <th>Status</th>
+                                    <th>Bank Details</th>
+                                    <th>Deposit Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="payrollTableBody">
-                                <!-- Payroll data will be loaded here -->
+                                <!-- Detailed payroll data will be loaded here -->
                             </tbody>
                         </table>
                     </div>
@@ -457,6 +573,19 @@
                                 <div class="mb-3">
                                     <label for="employeePhone" class="form-label">Phone</label>
                                     <input type="tel" class="form-control" id="employeePhone">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="employeeStatus" class="form-label">Status</label>
+                                    <select class="form-control" id="employeeStatus">
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                        <option value="On Leave">On Leave</option>
+                                        <option value="Terminated">Terminated</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -614,6 +743,211 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" onclick="addManualPayroll()">Add Payroll</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Attendance Modal -->
+    <div class="modal fade" id="addAttendanceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        Mark Employee Attendance
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addAttendanceForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="attendanceEmployee" class="form-label">Employee *</label>
+                                    <select class="form-control" id="attendanceEmployee" required>
+                                        <option value="">Select Employee</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="attendanceDate" class="form-label">Date *</label>
+                                    <input type="date" class="form-control" id="attendanceDate" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="attendanceStatus" class="form-label">Attendance Status *</label>
+                                    <select class="form-control" id="attendanceStatus" required onchange="updateAttendanceFields()">
+                                        <option value="">Select Status</option>
+                                        <option value="Present">Present</option>
+                                        <option value="Absent">Absent</option>
+                                        <option value="Late">Late</option>
+                                        <option value="Half Day">Half Day</option>
+                                        <option value="Work From Home">Work From Home</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="hoursWorked" class="form-label">Hours Worked</label>
+                                    <input type="number" class="form-control" id="hoursWorked" min="0" max="24" step="0.5" value="8">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="timeFields">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="checkInTime" class="form-label">Check-in Time</label>
+                                    <input type="time" class="form-control" id="checkInTime" value="09:00">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="checkOutTime" class="form-label">Check-out Time</label>
+                                    <input type="time" class="form-control" id="checkOutTime" value="18:00">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="attendanceRemarks" class="form-label">Remarks (Optional)</label>
+                                    <textarea class="form-control" id="attendanceRemarks" rows="2" placeholder="Add any additional notes about attendance..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Note:</strong> Attendance will be marked for the selected employee on the specified date. 
+                                    If attendance already exists for this date, it will be updated.
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addAttendance()">
+                        <i class="fas fa-check me-2"></i>Mark Attendance
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Attendance Modal -->
+    <div class="modal fade" id="bulkAttendanceModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-users-cog me-2"></i>
+                        Bulk Attendance Management
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="bulkAttendanceDate" class="form-label">Date *</label>
+                            <input type="date" class="form-control" id="bulkAttendanceDate" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="bulkAttendanceStatus" class="form-label">Default Status *</label>
+                            <select class="form-control" id="bulkAttendanceStatus" required>
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent</option>
+                                <option value="Late">Late</option>
+                                <option value="Half Day">Half Day</option>
+                                <option value="Work From Home">Work From Home</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="bulkHoursWorked" class="form-label">Default Hours</label>
+                            <input type="number" class="form-control" id="bulkHoursWorked" min="0" max="24" step="0.5" value="8">
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="selectAllEmployees" onchange="toggleAllEmployees()">
+                                    </th>
+                                    <th>Employee</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                    <th>Hours</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bulkAttendanceTableBody">
+                                <!-- Employee list will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="processBulkAttendance()">
+                        <i class="fas fa-save me-2"></i>Save Bulk Attendance
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Payroll View Modal -->
+    <div class="modal fade" id="detailedPayrollModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-receipt me-2"></i>
+                        Detailed Salary Breakdown
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="detailedPayrollContent">
+                        <!-- Detailed payroll content will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" onclick="printPayrollDetails()">
+                        <i class="fas fa-print me-1"></i>Print
+                    </button>
+                    <button type="button" class="btn btn-outline-success" onclick="downloadPayrollPDF()">
+                        <i class="fas fa-file-pdf me-1"></i>Download PDF
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payroll Summary Modal -->
+    <div class="modal fade" id="payrollSummaryModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Payroll Summary Report
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="payrollSummaryContent">
+                        <!-- Payroll summary content will be loaded here -->
+                    </div>
                 </div>
             </div>
         </div>

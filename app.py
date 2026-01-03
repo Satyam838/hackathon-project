@@ -168,56 +168,152 @@ admin_users = [
     }
 ]
 
-# Payroll data
+# Payroll data with comprehensive salary details
 payroll_data = []
 for user in users:
     for i in range(6):  # Last 6 months
         month_date = (datetime.now() - timedelta(days=30*i)).strftime("%Y-%m")
+        
+        # Calculate detailed salary components
+        basic_salary = user["salary_structure"]["basic"]
+        hra = user["salary_structure"]["hra"]
+        allowances = user["salary_structure"]["allowances"]
+        overtime = random.randint(0, 5000)
+        bonus = random.randint(0, 10000) if i == 0 else 0  # Bonus only for current month
+        
+        # Additional allowances
+        transport_allowance = random.randint(1000, 3000)
+        medical_allowance = random.randint(500, 2000)
+        food_allowance = random.randint(800, 2500)
+        
+        # Detailed deductions
+        pf_deduction = int(basic_salary * 0.12)  # 12% PF
+        esi_deduction = int((basic_salary + hra) * 0.0175)  # 1.75% ESI
+        professional_tax = 200
+        insurance_premium = random.randint(500, 1500)
+        loan_deduction = random.randint(0, 5000) if random.random() > 0.7 else 0
+        other_deductions = random.randint(0, 1000)
+        
+        # Calculate gross and tax
+        gross_salary = (basic_salary + hra + allowances + overtime + bonus + 
+                       transport_allowance + medical_allowance + food_allowance)
+        income_tax = int(gross_salary * 0.1) if gross_salary > 30000 else int(gross_salary * 0.05)
+        
+        total_deductions = (pf_deduction + esi_deduction + professional_tax + 
+                          insurance_premium + loan_deduction + other_deductions + income_tax)
+        
+        net_salary = gross_salary - total_deductions
+        
+        # Bank deposit details
+        bank_details = {
+            "account_number": f"****{random.randint(1000, 9999)}",
+            "bank_name": random.choice(["State Bank", "HDFC Bank", "ICICI Bank", "Axis Bank", "Kotak Bank"]),
+            "ifsc_code": f"SBIN000{random.randint(1000, 9999)}",
+            "deposit_date": (datetime.now() - timedelta(days=30*i + random.randint(25, 30))).strftime("%Y-%m-%d") if i > 0 else None,
+            "transaction_id": f"TXN{random.randint(100000000, 999999999)}" if i > 0 else None,
+            "deposit_status": "Deposited" if i > 0 else "Pending"
+        }
+        
         payroll_data.append({
             "id": len(payroll_data) + 1,
             "employee_id": user["id"],
             "month": month_date,
-            "basic_salary": user["salary_structure"]["basic"],
-            "hra": user["salary_structure"]["hra"],
-            "allowances": user["salary_structure"]["allowances"],
-            "overtime": random.randint(0, 5000),
-            "bonus": random.randint(0, 10000) if i == 0 else 0,  # Bonus only for current month
-            "deductions": user["salary_structure"]["deductions"],
-            "tax": int(user["salary"] * 0.1),  # 10% tax
-            "net_salary": user["salary"] + random.randint(0, 5000) - user["salary_structure"]["deductions"] - int(user["salary"] * 0.1),
-            "status": "Paid" if i > 0 else "Pending"
+            "pay_period": f"{month_date}-01 to {month_date}-{random.randint(28, 31)}",
+            
+            # Earnings breakdown
+            "basic_salary": basic_salary,
+            "hra": hra,
+            "allowances": allowances,
+            "transport_allowance": transport_allowance,
+            "medical_allowance": medical_allowance,
+            "food_allowance": food_allowance,
+            "overtime": overtime,
+            "bonus": bonus,
+            "gross_salary": gross_salary,
+            
+            # Deductions breakdown
+            "pf_deduction": pf_deduction,
+            "esi_deduction": esi_deduction,
+            "professional_tax": professional_tax,
+            "insurance_premium": insurance_premium,
+            "loan_deduction": loan_deduction,
+            "other_deductions": other_deductions,
+            "income_tax": income_tax,
+            "total_deductions": total_deductions,
+            
+            # Final calculation
+            "net_salary": net_salary,
+            "status": "Paid" if i > 0 else "Pending",
+            
+            # Bank and deposit details
+            "bank_details": bank_details,
+            "created_date": (datetime.now() - timedelta(days=30*i + 35)).strftime("%Y-%m-%d"),
+            "processed_by": "System Auto-Generated" if random.random() > 0.3 else "HR Admin",
+            
+            # Additional metadata
+            "working_days": 22,
+            "present_days": random.randint(18, 22),
+            "leave_days": random.randint(0, 4),
+            "overtime_hours": overtime // 500 if overtime > 0 else 0,
+            "remarks": "Regular monthly salary" if bonus == 0 else "Includes performance bonus"
         })
+   
 
-# Sample attendance data
+# Enhanced attendance data with more detailed information
 attendance_data = []
 for user in users:
     for i in range(30):  # Last 30 days
         date = (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d")
-        status = random.choice(["Present", "Present", "Present", "Present", "Absent", "Late"])
-        hours = 8 if status == "Present" else (6 if status == "Late" else 0)
+        status = random.choice(["Present", "Present", "Present", "Present", "Absent", "Late", "Half Day", "Work From Home"])
         
-        # Generate check-in and check-out times
+        # Calculate hours based on status
         if status == "Present":
-            check_in = "09:00 AM"
-            check_out = "06:00 PM"
+            hours = 8
+            check_in = "09:00"
+            check_out = "18:00"
         elif status == "Late":
-            # Late check-in times
+            hours = 7.5
             late_minutes = random.randint(15, 120)  # 15 minutes to 2 hours late
             check_in_hour = 9 + (late_minutes // 60)
             check_in_minute = late_minutes % 60
-            check_in = f"{check_in_hour:02d}:{check_in_minute:02d} AM"
-            check_out = "06:00 PM"
+            check_in = f"{check_in_hour:02d}:{check_in_minute:02d}"
+            check_out = "18:00"
+        elif status == "Half Day":
+            hours = 4
+            check_in = "09:00"
+            check_out = "13:00"
+        elif status == "Work From Home":
+            hours = 8
+            check_in = "09:30"
+            check_out = "18:30"
         else:  # Absent
+            hours = 0
             check_in = None
             check_out = None
             
+        # Generate remarks based on status
+        remarks_options = {
+            "Present": ["On time", "Good performance", ""],
+            "Late": ["Traffic delay", "Personal emergency", "Overslept"],
+            "Absent": ["Sick leave", "Personal work", "Family emergency"],
+            "Half Day": ["Medical appointment", "Personal work", "Early leave"],
+            "Work From Home": ["Remote work", "Client meeting", "Project work"]
+        }
+        
+        remarks = random.choice(remarks_options.get(status, [""]))
+            
         attendance_data.append({
+            "id": len(attendance_data) + 1,
             "employee_id": user["id"],
             "date": date,
             "status": status,
             "hours_worked": hours,
             "check_in": check_in,
-            "check_out": check_out
+            "check_out": check_out,
+            "remarks": remarks,
+            "created_by": "System" if random.random() > 0.3 else "HR Admin",
+            "created_date": date,
+            "overtime_hours": random.randint(0, 2) if status == "Present" and random.random() > 0.8 else 0
         })
 
 # Sample leave requests
@@ -983,11 +1079,11 @@ def test_payroll_generation():
         return jsonify({'error': 'Unauthorized'}), 401
     
     return jsonify({
-        'users_count': len(users_data),
-        'active_users': len([u for u in users_data if u.get('status') == 'Active']),
-        'users_with_salary': len([u for u in users_data if u.get('salary')]),
+        'users_count': len(users),
+        'active_users': len([u for u in users if u.get('status') == 'Active']),
+        'users_with_salary': len([u for u in users if u.get('salary')]),
         'current_payroll_count': len(payroll_data),
-        'sample_user': users_data[0] if users_data else None
+        'sample_user': users[0] if users else None
     })
 
 # Auto-generate payroll for all employees
@@ -1014,10 +1110,10 @@ def generate_monthly_payroll():
         return jsonify({'error': f'Payroll for {target_month} already exists'}), 400
     
     generated_count = 0
-    print(f"Number of users: {len(users_data)}")
+    print(f"Number of users: {len(users)}")
     
     # Generate payroll for all active employees
-    for employee in users_data:
+    for employee in users:
         print(f"Processing employee: {employee.get('name')} - Status: {employee.get('status')} - Salary: {employee.get('salary')}")
         
         if employee.get('status') == 'Active' and employee.get('salary'):
@@ -1191,3 +1287,208 @@ def get_payroll_report():
         monthly_payroll[month]["total_net"] += payroll["net_salary"]
     
     return jsonify(list(monthly_payroll.values()))
+# Enhanced Attendance Management Endpoints
+
+@app.route('/api/attendance', methods=['POST'])
+def add_attendance():
+    if 'user_type' not in session or session['user_type'] != 'admin':
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    data = request.get_json()
+    employee_id = data.get('employee_id')
+    date = data.get('date')
+    status = data.get('status')
+    hours_worked = data.get('hours_worked', 0)
+    check_in = data.get('check_in')
+    check_out = data.get('check_out')
+    remarks = data.get('remarks', '')
+    
+    if not employee_id or not date or not status:
+        return jsonify({"error": "Missing required fields"}), 400
+    
+    # Check if attendance already exists for this employee and date
+    existing_attendance = next((a for a in attendance_data if a['employee_id'] == employee_id and a['date'] == date), None)
+    
+    if existing_attendance:
+        # Update existing attendance
+        existing_attendance.update({
+            'status': status,
+            'hours_worked': hours_worked,
+            'check_in': check_in,
+            'check_out': check_out,
+            'remarks': remarks,
+            'created_by': 'HR Admin'
+        })
+        return jsonify(existing_attendance)
+    else:
+        # Create new attendance record
+        new_attendance = {
+            "id": len(attendance_data) + 1,
+            "employee_id": employee_id,
+            "date": date,
+            "status": status,
+            "hours_worked": hours_worked,
+            "check_in": check_in,
+            "check_out": check_out,
+            "remarks": remarks,
+            "created_by": "HR Admin",
+            "created_date": datetime.now().strftime("%Y-%m-%d"),
+            "overtime_hours": 0
+        }
+        attendance_data.append(new_attendance)
+        return jsonify(new_attendance), 201
+
+@app.route('/api/attendance/<int:attendance_id>', methods=['PUT'])
+def update_attendance(attendance_id):
+    if 'user_type' not in session or session['user_type'] != 'admin':
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    attendance_record = next((a for a in attendance_data if a['id'] == attendance_id), None)
+    if not attendance_record:
+        return jsonify({"error": "Attendance record not found"}), 404
+    
+    data = request.get_json()
+    attendance_record.update({
+        'status': data.get('status', attendance_record['status']),
+        'hours_worked': data.get('hours_worked', attendance_record['hours_worked']),
+        'check_in': data.get('check_in', attendance_record['check_in']),
+        'check_out': data.get('check_out', attendance_record['check_out']),
+        'remarks': data.get('remarks', attendance_record['remarks']),
+        'created_by': 'HR Admin'
+    })
+    
+    return jsonify(attendance_record)
+
+@app.route('/api/attendance/<int:attendance_id>', methods=['DELETE'])
+def delete_attendance(attendance_id):
+    if 'user_type' not in session or session['user_type'] != 'admin':
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    global attendance_data
+    attendance_data = [a for a in attendance_data if a['id'] != attendance_id]
+    
+    return jsonify({"message": "Attendance record deleted successfully"})
+
+@app.route('/api/attendance/bulk', methods=['POST'])
+def bulk_add_attendance():
+    if 'user_type' not in session or session['user_type'] != 'admin':
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    data = request.get_json()
+    attendance_records = data.get('attendance_records', [])
+    
+    if not attendance_records:
+        return jsonify({"error": "No attendance records provided"}), 400
+    
+    created_count = 0
+    updated_count = 0
+    
+    for record in attendance_records:
+        employee_id = record.get('employee_id')
+        date = record.get('date')
+        
+        if not employee_id or not date:
+            continue
+            
+        # Check if attendance already exists
+        existing_attendance = next((a for a in attendance_data if a['employee_id'] == employee_id and a['date'] == date), None)
+        
+        if existing_attendance:
+            # Update existing
+            existing_attendance.update({
+                'status': record.get('status', existing_attendance['status']),
+                'hours_worked': record.get('hours_worked', existing_attendance['hours_worked']),
+                'check_in': record.get('check_in', existing_attendance['check_in']),
+                'check_out': record.get('check_out', existing_attendance['check_out']),
+                'remarks': record.get('remarks', existing_attendance['remarks']),
+                'created_by': 'HR Admin'
+            })
+            updated_count += 1
+        else:
+            # Create new
+            new_attendance = {
+                "id": len(attendance_data) + 1,
+                "employee_id": employee_id,
+                "date": date,
+                "status": record.get('status', 'Present'),
+                "hours_worked": record.get('hours_worked', 8),
+                "check_in": record.get('check_in'),
+                "check_out": record.get('check_out'),
+                "remarks": record.get('remarks', 'Bulk attendance entry'),
+                "created_by": "HR Admin",
+                "created_date": datetime.now().strftime("%Y-%m-%d"),
+                "overtime_hours": 0
+            }
+            attendance_data.append(new_attendance)
+            created_count += 1
+    
+    return jsonify({
+        "message": f"Bulk attendance processed successfully",
+        "created": created_count,
+        "updated": updated_count,
+        "total": created_count + updated_count
+    })
+
+@app.route('/api/attendance/statistics', methods=['GET'])
+def get_attendance_statistics():
+    if 'user_type' not in session or session['user_type'] != 'admin':
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    date = request.args.get('date', datetime.now().strftime("%Y-%m-%d"))
+    
+    # Get attendance for specific date
+    date_attendance = [a for a in attendance_data if a['date'] == date]
+    
+    # Calculate statistics
+    total_employees = len(users)
+    present_count = len([a for a in date_attendance if a['status'] in ['Present', 'Work From Home']])
+    absent_count = len([a for a in date_attendance if a['status'] == 'Absent'])
+    late_count = len([a for a in date_attendance if a['status'] == 'Late'])
+    half_day_count = len([a for a in date_attendance if a['status'] == 'Half Day'])
+    
+    attendance_rate = (present_count / total_employees * 100) if total_employees > 0 else 0
+    
+    return jsonify({
+        "date": date,
+        "total_employees": total_employees,
+        "present_count": present_count,
+        "absent_count": absent_count,
+        "late_count": late_count,
+        "half_day_count": half_day_count,
+        "attendance_rate": round(attendance_rate, 2),
+        "marked_attendance": len(date_attendance),
+        "pending_attendance": total_employees - len(date_attendance)
+    })
+
+@app.route('/api/attendance/report', methods=['GET'])
+def get_attendance_report():
+    if 'user_type' not in session or session['user_type'] != 'admin':
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    employee_id = request.args.get('employee_id')
+    
+    filtered_attendance = attendance_data
+    
+    if start_date:
+        filtered_attendance = [a for a in filtered_attendance if a['date'] >= start_date]
+    
+    if end_date:
+        filtered_attendance = [a for a in filtered_attendance if a['date'] <= end_date]
+    
+    if employee_id:
+        filtered_attendance = [a for a in filtered_attendance if a['employee_id'] == int(employee_id)]
+    
+    # Add employee information to each record
+    report_data = []
+    for record in filtered_attendance:
+        employee = next((u for u in users if u['id'] == record['employee_id']), None)
+        if employee:
+            report_record = record.copy()
+            report_record['employee_name'] = employee['name']
+            report_record['employee_id_code'] = employee['employee_id']
+            report_record['department'] = employee['department']
+            report_data.append(report_record)
+    
+    return jsonify(report_data)

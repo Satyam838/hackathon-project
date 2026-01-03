@@ -6,98 +6,129 @@
     <title>HR Management System - Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 </head>
 <body class="login-body">
-    <!-- Theme Toggle Button -->
-    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1000;">
-        <button class="btn btn-outline-secondary btn-sm" id="themeToggle" onclick="toggleTheme()">
-            <i class="fas fa-sun" id="themeIcon"></i>
-        </button>
+    <!-- Animated Background Elements -->
+    <div class="position-fixed w-100 h-100" style="z-index: -1; overflow: hidden;">
+        <div class="position-absolute" style="top: 10%; left: 10%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(0,212,255,0.1) 0%, transparent 70%); border-radius: 50%; animation: float 6s ease-in-out infinite;"></div>
+        <div class="position-absolute" style="top: 60%; right: 15%; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%); border-radius: 50%; animation: float 8s ease-in-out infinite reverse;"></div>
+        <div class="position-absolute" style="bottom: 20%; left: 20%; width: 100px; height: 100px; background: radial-gradient(circle, rgba(0,255,136,0.1) 0%, transparent 70%); border-radius: 50%; animation: float 10s ease-in-out infinite;"></div>
     </div>
     
     <div class="container-fluid vh-100 d-flex align-items-center justify-content-center">
         <div class="row w-100">
-            <div class="col-md-6 col-lg-4 mx-auto">
+            <div class="col-md-6 col-lg-5 col-xl-4 mx-auto">
                 <div class="card login-card">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <i class="fas fa-users fa-3x text-primary mb-3"></i>
-                            <h2 class="card-title">HR Management System</h2>
-                            <p class="text-muted">Please sign in to continue</p>
+                    <div class="card-body">
+                        <div class="text-center mb-5">
+                            <div class="mb-4">
+                                <i class="fas fa-building fa-4x text-primary mb-3" style="text-shadow: 0 0 30px rgba(0,212,255,0.5);"></i>
+                            </div>
+                            <h1 class="card-title mb-2" style="font-weight: 700; font-size: 2rem;">HR Management</h1>
+                            <p class="text-muted mb-0" style="font-size: 1.1rem;">Professional Workforce Solutions</p>
+                            <div class="mt-3" style="height: 2px; background: var(--gradient-accent); border-radius: 1px; width: 60px; margin: 0 auto;"></div>
                         </div>
 
                         <form id="loginForm">
-                            <div class="mb-3">
-                                <label for="userType" class="form-label">Login As</label>
+                            <div class="mb-4">
+                                <label for="userType" class="form-label">
+                                    <i class="fas fa-user-tag me-2"></i>Login As
+                                </label>
                                 <select class="form-control" id="userType" required>
                                     <option value="">Select User Type</option>
-                                    <option value="admin">Administrator</option>
-                                    <option value="employee">Employee</option>
+                                    <option value="admin">
+                                        <i class="fas fa-shield-alt"></i> Administrator
+                                    </option>
+                                    <option value="employee">
+                                        <i class="fas fa-user"></i> Employee
+                                    </option>
                                 </select>
                             </div>
 
                             <!-- Admin Fields -->
                             <div id="adminFields" style="display: none;">
-                                <div class="mb-3">
-                                    <label for="adminUsername" class="form-label">Username</label>
+                                <div class="mb-4">
+                                    <label for="adminUsername" class="form-label">
+                                        <i class="fas fa-user-shield me-2"></i>Administrator Username
+                                    </label>
                                     <div class="input-group">
                                         <span class="input-group-text">
-                                            <i class="fas fa-user"></i>
+                                            <i class="fas fa-crown"></i>
                                         </span>
-                                        <input type="text" class="form-control" id="adminUsername">
+                                        <input type="text" class="form-control" id="adminUsername" placeholder="Enter admin username">
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Employee Fields -->
                             <div id="employeeFields" style="display: none;">
-                                <div class="mb-3">
-                                    <label for="employeeId" class="form-label">Employee ID</label>
+                                <div class="mb-4">
+                                    <label for="employeeId" class="form-label">
+                                        <i class="fas fa-id-badge me-2"></i>Employee ID
+                                    </label>
                                     <div class="input-group">
                                         <span class="input-group-text">
-                                            <i class="fas fa-id-badge"></i>
+                                            <i class="fas fa-hashtag"></i>
                                         </span>
-                                        <input type="text" class="form-control" id="employeeId">
+                                        <input type="text" class="form-control" id="employeeId" placeholder="e.g., EMP001">
                                     </div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label for="employeeEmail" class="form-label">Email Address</label>
+                                <div class="mb-4">
+                                    <label for="employeeEmail" class="form-label">
+                                        <i class="fas fa-envelope me-2"></i>Email Address
+                                    </label>
                                     <div class="input-group">
                                         <span class="input-group-text">
-                                            <i class="fas fa-envelope"></i>
+                                            <i class="fas fa-at"></i>
                                         </span>
-                                        <input type="email" class="form-control" id="employeeEmail">
+                                        <input type="email" class="form-control" id="employeeEmail" placeholder="your.email@company.com">
                                     </div>
                                 </div>
                             </div>
 
                             <div class="mb-4">
-                                <label for="password" class="form-label">Password</label>
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Password
+                                </label>
                                 <div class="input-group">
                                     <span class="input-group-text">
-                                        <i class="fas fa-lock"></i>
+                                        <i class="fas fa-key"></i>
                                     </span>
-                                    <input type="password" class="form-control" id="password" required>
+                                    <input type="password" class="form-control" id="password" required placeholder="Enter your password">
                                     <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <button type="submit" class="btn btn-primary w-100 mb-4" style="padding: 1rem; font-size: 1.1rem; font-weight: 600;">
                                 <i class="fas fa-sign-in-alt me-2"></i>
-                                Sign In
+                                ACCESS SYSTEM
                             </button>
                         </form>
 
                         <div class="text-center">
-                            <small class="text-muted">
-                                Demo Credentials:<br>
-                                <strong>Admin:</strong> admin / admin123<br>
-                                <strong>Employee:</strong> EMP001, john@example.com / password123
-                            </small>
+                            <div class="card" style="background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); border-radius: 12px; padding: 1.5rem;">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>Demo Credentials
+                                </h6>
+                                <div class="row text-start">
+                                    <div class="col-6">
+                                        <strong class="text-warning">Administrator:</strong><br>
+                                        <small class="text-muted">Username:</small> <code>admin</code><br>
+                                        <small class="text-muted">Password:</small> <code>admin123</code>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong class="text-success">Employee:</strong><br>
+                                        <small class="text-muted">ID:</small> <code>EMP001</code><br>
+                                        <small class="text-muted">Email:</small> <code>john.doe@company.com</code><br>
+                                        <small class="text-muted">Password:</small> <code>password123</code>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -107,6 +138,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Floating animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0%, 100% { transform: translateY(0px) rotate(0deg); }
+                33% { transform: translateY(-20px) rotate(120deg); }
+                66% { transform: translateY(10px) rotate(240deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
         // Toggle password visibility
         document.getElementById('togglePassword').addEventListener('click', function() {
             const password = document.getElementById('password');
@@ -123,17 +165,29 @@
             }
         });
 
-        // Update username label based on user type
+        // Update fields based on user type
         document.getElementById('userType').addEventListener('change', function() {
             const adminFields = document.getElementById('adminFields');
             const employeeFields = document.getElementById('employeeFields');
             
+            // Add smooth transition
+            adminFields.style.transition = 'all 0.3s ease';
+            employeeFields.style.transition = 'all 0.3s ease';
+            
             if (this.value === 'admin') {
                 adminFields.style.display = 'block';
                 employeeFields.style.display = 'none';
+                setTimeout(() => {
+                    adminFields.style.opacity = '1';
+                    adminFields.style.transform = 'translateY(0)';
+                }, 10);
             } else if (this.value === 'employee') {
                 adminFields.style.display = 'none';
                 employeeFields.style.display = 'block';
+                setTimeout(() => {
+                    employeeFields.style.opacity = '1';
+                    employeeFields.style.transform = 'translateY(0)';
+                }, 10);
             } else {
                 adminFields.style.display = 'none';
                 employeeFields.style.display = 'none';
@@ -144,11 +198,20 @@
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.classList.add('btn-loading');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>AUTHENTICATING...';
+            submitBtn.disabled = true;
+            
             const userType = document.getElementById('userType').value;
             const password = document.getElementById('password').value;
 
             if (!userType || !password) {
-                showAlert('Please fill in all fields', 'warning');
+                showAlert('Please fill in all required fields', 'warning');
+                resetButton();
                 return;
             }
 
@@ -160,7 +223,8 @@
             if (userType === 'admin') {
                 const username = document.getElementById('adminUsername').value;
                 if (!username) {
-                    showAlert('Please enter username', 'warning');
+                    showAlert('Please enter administrator username', 'warning');
+                    resetButton();
                     return;
                 }
                 loginData.username = username;
@@ -170,6 +234,7 @@
                 
                 if (!employeeId || !email) {
                     showAlert('Please fill in all employee fields', 'warning');
+                    resetButton();
                     return;
                 }
                 
@@ -189,26 +254,41 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    showAlert('Login successful! Redirecting...', 'success');
+                    submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>SUCCESS! REDIRECTING...';
+                    submitBtn.classList.remove('btn-primary');
+                    submitBtn.classList.add('btn-success');
+                    
+                    showAlert('Login successful! Redirecting to dashboard...', 'success');
                     setTimeout(() => {
                         window.location.href = result.redirect;
-                    }, 1000);
+                    }, 1500);
                 } else {
-                    showAlert(result.message || 'Login failed', 'danger');
+                    showAlert(result.message || 'Login failed. Please check your credentials.', 'danger');
+                    resetButton();
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                showAlert('An error occurred during login', 'danger');
+                showAlert('Connection error. Please try again.', 'danger');
+                resetButton();
+            }
+            
+            function resetButton() {
+                submitBtn.classList.remove('btn-loading');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             }
         });
 
-        // Show alert function
+        // Enhanced alert function
         function showAlert(message, type) {
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertDiv.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 350px; max-width: 500px;';
             alertDiv.innerHTML = `
-                ${message}
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : type === 'warning' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+                    <div>${message}</div>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             `;
             
@@ -220,6 +300,39 @@
                 }
             }, 5000);
         }
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            const currentTheme = html.getAttribute('data-bs-theme');
+            
+            if (currentTheme === 'dark') {
+                html.setAttribute('data-bs-theme', 'light');
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-bs-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            html.setAttribute('data-bs-theme', savedTheme);
+            themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // Add subtle animations on load
+        window.addEventListener('load', function() {
+            const card = document.querySelector('.login-card');
+            card.style.animation = 'fadeInUp 0.8s ease';
+        });
     </script>
 </body>
 </html>

@@ -27,6 +27,14 @@ document.addEventListener('DOMContentLoaded', function() {
             input.addEventListener('input', calculateNetSalary);
         }
     });
+    
+    // Reset employee modal when closed
+    const employeeModal = document.getElementById('addEmployeeModal');
+    if (employeeModal) {
+        employeeModal.addEventListener('hidden.bs.modal', function() {
+            resetEmployeeModal();
+        });
+    }
 });
 
 // Section management
@@ -147,8 +155,8 @@ function renderEmployeeTable() {
                 <button class="btn btn-sm btn-outline-secondary me-1" onclick="viewWeeklyAttendance(${employee.id})" title="Weekly Attendance">
                     <i class="fas fa-calendar-week"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-warning me-1" onclick="editEmployee(${employee.id})" title="Edit">
-                    <i class="fas fa-edit"></i>
+                <button class="btn btn-sm btn-outline-info me-1" onclick="editEmployee(${employee.id})" title="Edit Information">
+                    <i class="fas fa-user-edit"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-danger" onclick="deleteEmployee(${employee.id})" title="Delete">
                     <i class="fas fa-trash"></i>
@@ -173,43 +181,8 @@ async function loadPayroll() {
 }
 
 // Render payroll table with all individual columns
-function renderPayrollTable() {
-    const tableBody = document.getElementById('payrollTableBody');
-    if (!tableBody) return;
-    
-    tableBody.innerHTML = '';
-
-    payrollData.slice(0, 50).forEach(payroll => {
-        const employee = employees.find(emp => emp.id === payroll.employee_id);
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${employee ? employee.name : 'Unknown'}</td>
-            <td>${payroll.month}</td>
-            <td>${payroll.basic_salary.toLocaleString()}</td>
-            <td>${payroll.hra.toLocaleString()}</td>
-            <td>${payroll.allowances.toLocaleString()}</td>
-            <td>${payroll.overtime.toLocaleString()}</td>
-            <td>${payroll.bonus.toLocaleString()}</td>
-            <td>${payroll.deductions.toLocaleString()}</td>
-            <td>${payroll.tax.toLocaleString()}</td>
-            <td><strong>${payroll.net_salary.toLocaleString()}</strong></td>
-            <td>
-                <span class="badge ${payroll.status === 'Paid' ? 'bg-success' : 'bg-warning'}">${payroll.status}</span>
-            </td>
-            <td>
-                <button class="btn btn-sm btn-outline-primary me-1" onclick="viewPayrollDetails(${payroll.id})" title="View Details">
-                    <i class="fas fa-eye"></i>
-                </button>
-                ${payroll.status === 'Pending' ? `
-                    <button class="btn btn-sm btn-outline-success" onclick="markPayrollPaid(${payroll.id})" title="Mark as Paid">
-                        <i class="fas fa-check"></i>
-                    </button>
-                ` : ''}
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
+// This function is replaced by the enhanced version at the end of the file
+// See: Enhanced payroll table rendering with detailed salary information
 
 // Update payroll statistics
 function updatePayrollStatistics() {
@@ -736,59 +709,6 @@ function calculateNetSalary() {
     }
 }
 
-// Add new employee
-async function addEmployee() {
-    const name = document.getElementById('employeeName').value;
-    const email = document.getElementById('employeeEmail').value;
-    const role = document.getElementById('employeeRole').value;
-    const department = document.getElementById('employeeDepartment').value;
-    const salary = document.getElementById('employeeSalary').value;
-    const phone = document.getElementById('employeePhone').value;
-    const address = document.getElementById('employeeAddress').value;
-
-    if (!name || !email || !role || !department || !salary) {
-        showAlert('Please fill in all required fields', 'warning');
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-                name, 
-                email, 
-                role, 
-                department, 
-                salary: parseInt(salary),
-                phone,
-                address
-            })
-        });
-
-        if (response.ok) {
-            const newEmployee = await response.json();
-            employees.push(newEmployee);
-            renderEmployeeTable();
-            updateDashboardStats();
-            
-            // Close modal and reset form
-            const modal = bootstrap.Modal.getInstance(document.getElementById('addEmployeeModal'));
-            modal.hide();
-            document.getElementById('addEmployeeForm').reset();
-            
-            showAlert('Employee added successfully', 'success');
-        } else {
-            throw new Error('Failed to add employee');
-        }
-    } catch (error) {
-        console.error('Error adding employee:', error);
-        showAlert('Error adding employee', 'danger');
-    }
-}
-
 // View employee details
 function viewEmployee(id) {
     const employee = employees.find(emp => emp.id === id);
@@ -847,21 +767,112 @@ function editEmployee(id) {
         document.getElementById('employeeSalary').value = employee.salary;
         document.getElementById('employeePhone').value = employee.phone || '';
         document.getElementById('employeeAddress').value = employee.address || '';
+        document.getElementById('employeeStatus').value = employee.status || 'Active';
+        
+        // Store the employee ID for updating
+        document.getElementById('addEmployeeModal').setAttribute('data-edit-id', id);
+        
+        // Change modal title and button text
+        document.querySelector('#addEmployeeModal .modal-title').textContent = 'Edit Employee';
+        document.querySelector('#addEmployeeModal .btn-primary').textContent = 'Update Employee';
         
         // Show modal
         const modal = new bootstrap.Modal(document.getElementById('addEmployeeModal'));
         modal.show();
-        
-        // Change modal title and button text
-        document.querySelector('#addEmployeeModal .modal-title').textContent = 'Edit Employee';
-        
-        showAlert('Edit functionality coming soon!', 'info');
     }
 }
 
-// Update dashboard statistics
-function updateDashboardStats() {
-    loadDashboardStats();
+// Enhanced addEmployee function to handle both add and edit
+async function addEmployee() {
+    const editId = document.getElementById('addEmployeeModal').getAttribute('data-edit-id');
+    const isEdit = editId && editId !== 'null';
+    
+    const name = document.getElementById('employeeName').value;
+    const email = document.getElementById('employeeEmail').value;
+    const role = document.getElementById('employeeRole').value;
+    const department = document.getElementById('employeeDepartment').value;
+    const salary = document.getElementById('employeeSalary').value;
+    const phone = document.getElementById('employeePhone').value;
+    const address = document.getElementById('employeeAddress').value;
+    const status = document.getElementById('employeeStatus').value;
+
+    if (!name || !email || !role || !department || !salary) {
+        showAlert('Please fill in all required fields', 'warning');
+        return;
+    }
+
+    const employeeData = {
+        name, 
+        email, 
+        role, 
+        department, 
+        salary: parseInt(salary),
+        phone,
+        address,
+        status: status || 'Active'
+    };
+
+    try {
+        let response;
+        if (isEdit) {
+            // Update existing employee
+            response = await fetch(`/api/users/${editId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(employeeData)
+            });
+        } else {
+            // Add new employee
+            response = await fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(employeeData)
+            });
+        }
+
+        if (response.ok) {
+            const updatedEmployee = await response.json();
+            
+            if (isEdit) {
+                // Update the employee in the local array
+                const index = employees.findIndex(emp => emp.id == editId);
+                if (index !== -1) {
+                    employees[index] = updatedEmployee;
+                }
+            } else {
+                // Add new employee to local array
+                employees.push(updatedEmployee);
+            }
+            
+            renderEmployeeTable();
+            updateDashboardStats();
+            
+            // Close modal and reset form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addEmployeeModal'));
+            modal.hide();
+            resetEmployeeModal();
+            
+            showAlert(`✅ Employee ${isEdit ? 'updated' : 'added'} successfully!`, 'success');
+        } else {
+            const error = await response.json();
+            throw new Error(error.error || `Failed to ${isEdit ? 'update' : 'add'} employee`);
+        }
+    } catch (error) {
+        console.error('Error with employee:', error);
+        showAlert(`❌ Error ${isEdit ? 'updating' : 'adding'} employee: ${error.message}`, 'danger');
+    }
+}
+
+// Reset employee modal to add mode
+function resetEmployeeModal() {
+    document.getElementById('addEmployeeForm').reset();
+    document.getElementById('addEmployeeModal').removeAttribute('data-edit-id');
+    document.querySelector('#addEmployeeModal .modal-title').textContent = 'Add New Employee';
+    document.querySelector('#addEmployeeModal .btn-primary').textContent = 'Add Employee';
 }
 
 // Attendance Management
@@ -1381,3 +1392,1032 @@ function showAlert(message, type, duration = 5000) {
         }
     }, duration);
 }
+
+// Enhanced payroll functions for detailed salary management
+
+// Get deposit status badge class
+function getDepositStatusBadgeClass(status) {
+    switch(status) {
+        case 'Deposited': return 'bg-success';
+        case 'Paid': return 'bg-success';
+        case 'Pending': return 'bg-warning';
+        case 'Failed': return 'bg-danger';
+        case 'Processing': return 'bg-info';
+        default: return 'bg-secondary';
+    }
+}
+
+// Enhanced payroll statistics update
+function updateEnhancedPayrollStatistics() {
+    if (!payrollData || payrollData.length === 0) return;
+    
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const currentMonthPayroll = payrollData.filter(p => p.month === currentMonth);
+    
+    const totalGross = currentMonthPayroll.reduce((sum, p) => {
+        return sum + (p.gross_salary || (p.basic_salary + p.hra + p.allowances + p.overtime + p.bonus) || p.net_salary || 0);
+    }, 0);
+    
+    const totalDeductions = currentMonthPayroll.reduce((sum, p) => {
+        return sum + (p.total_deductions || (p.deductions + p.tax) || 0);
+    }, 0);
+    
+    const totalNet = currentMonthPayroll.reduce((sum, p) => sum + (p.net_salary || 0), 0);
+    
+    const depositedCount = currentMonthPayroll.filter(p => 
+        (p.bank_details?.deposit_status === 'Deposited') || p.status === 'Paid'
+    ).length;
+    
+    const pendingCount = currentMonthPayroll.filter(p => 
+        (p.bank_details?.deposit_status === 'Pending') || p.status === 'Pending'
+    ).length;
+    
+    const avgGross = currentMonthPayroll.length > 0 ? totalGross / currentMonthPayroll.length : 0;
+    
+    // Update enhanced statistics cards
+    const elements = {
+        totalPayrollAmount: totalGross,
+        depositedSalariesCount: depositedCount,
+        pendingSalariesCount: pendingCount,
+        avgGrossSalary: avgGross,
+        totalDeductions: totalDeductions,
+        netDisbursed: totalNet
+    };
+    
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            if (id.includes('Count')) {
+                element.textContent = value;
+            } else {
+                element.textContent = '$' + Math.round(value).toLocaleString();
+            }
+        }
+    });
+}
+
+// View detailed payroll information
+function viewDetailedPayroll(payrollId) {
+    const payroll = payrollData.find(p => p.id === payrollId);
+    const employee = employees.find(emp => emp.id === payroll.employee_id);
+    
+    if (!payroll || !employee) {
+        showAlert('Payroll record not found', 'danger');
+        return;
+    }
+    
+    const content = document.getElementById('detailedPayrollContent');
+    
+    // Calculate values for display (handle both old and new data structures)
+    const grossSalary = payroll.gross_salary || (payroll.basic_salary + payroll.hra + payroll.allowances + payroll.overtime + payroll.bonus);
+    const totalDeductions = payroll.total_deductions || (payroll.deductions + payroll.tax);
+    
+    content.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="fas fa-user me-2"></i>Employee Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr><td><strong>Name:</strong></td><td>${employee.name}</td></tr>
+                            <tr><td><strong>Employee ID:</strong></td><td>${employee.employee_id}</td></tr>
+                            <tr><td><strong>Department:</strong></td><td>${employee.department}</td></tr>
+                            <tr><td><strong>Role:</strong></td><td>${employee.role}</td></tr>
+                            <tr><td><strong>Pay Period:</strong></td><td>${payroll.pay_period || payroll.month}</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-university me-2"></i>Bank Details</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr><td><strong>Bank:</strong></td><td>${payroll.bank_details?.bank_name || 'Not Available'}</td></tr>
+                            <tr><td><strong>Account:</strong></td><td>${payroll.bank_details?.account_number || 'Not Available'}</td></tr>
+                            <tr><td><strong>IFSC:</strong></td><td>${payroll.bank_details?.ifsc_code || 'Not Available'}</td></tr>
+                            <tr><td><strong>Status:</strong></td><td>
+                                <span class="badge ${getDepositStatusBadgeClass(payroll.bank_details?.deposit_status || payroll.status)}">
+                                    ${payroll.bank_details?.deposit_status || payroll.status || 'Pending'}
+                                </span>
+                            </td></tr>
+                            <tr><td><strong>Deposit Date:</strong></td><td>${payroll.bank_details?.deposit_date || 'Not deposited'}</td></tr>
+                            ${payroll.bank_details?.transaction_id ? `<tr><td><strong>Transaction ID:</strong></td><td>${payroll.bank_details.transaction_id}</td></tr>` : ''}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Earnings Breakdown</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <tr><td>Basic Salary</td><td class="text-end"><strong>$${payroll.basic_salary?.toLocaleString() || '0'}</strong></td></tr>
+                            <tr><td>HRA</td><td class="text-end">$${payroll.hra?.toLocaleString() || '0'}</td></tr>
+                            <tr><td>Allowances</td><td class="text-end">$${payroll.allowances?.toLocaleString() || '0'}</td></tr>
+                            ${payroll.transport_allowance ? `<tr><td>Transport Allowance</td><td class="text-end">$${payroll.transport_allowance.toLocaleString()}</td></tr>` : ''}
+                            ${payroll.medical_allowance ? `<tr><td>Medical Allowance</td><td class="text-end">$${payroll.medical_allowance.toLocaleString()}</td></tr>` : ''}
+                            ${payroll.food_allowance ? `<tr><td>Food Allowance</td><td class="text-end">$${payroll.food_allowance.toLocaleString()}</td></tr>` : ''}
+                            <tr><td>Overtime</td><td class="text-end">$${payroll.overtime?.toLocaleString() || '0'}</td></tr>
+                            <tr><td>Bonus</td><td class="text-end">$${payroll.bonus?.toLocaleString() || '0'}</td></tr>
+                            <tr class="table-success"><td><strong>Gross Salary</strong></td><td class="text-end"><strong>$${grossSalary?.toLocaleString() || '0'}</strong></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0"><i class="fas fa-minus-circle me-2"></i>Deductions Breakdown</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            ${payroll.pf_deduction ? `<tr><td>PF Deduction</td><td class="text-end">$${payroll.pf_deduction.toLocaleString()}</td></tr>` : ''}
+                            ${payroll.esi_deduction ? `<tr><td>ESI Deduction</td><td class="text-end">$${payroll.esi_deduction.toLocaleString()}</td></tr>` : ''}
+                            ${payroll.professional_tax ? `<tr><td>Professional Tax</td><td class="text-end">$${payroll.professional_tax.toLocaleString()}</td></tr>` : ''}
+                            ${payroll.insurance_premium ? `<tr><td>Insurance Premium</td><td class="text-end">$${payroll.insurance_premium.toLocaleString()}</td></tr>` : ''}
+                            ${payroll.loan_deduction ? `<tr><td>Loan Deduction</td><td class="text-end">$${payroll.loan_deduction.toLocaleString()}</td></tr>` : ''}
+                            ${payroll.other_deductions ? `<tr><td>Other Deductions</td><td class="text-end">$${payroll.other_deductions.toLocaleString()}</td></tr>` : ''}
+                            <tr><td>Income Tax</td><td class="text-end">$${(payroll.income_tax || payroll.tax || 0).toLocaleString()}</td></tr>
+                            ${payroll.deductions && !payroll.total_deductions ? `<tr><td>Other Deductions</td><td class="text-end">$${payroll.deductions.toLocaleString()}</td></tr>` : ''}
+                            <tr class="table-danger"><td><strong>Total Deductions</strong></td><td class="text-end"><strong>$${totalDeductions?.toLocaleString() || '0'}</strong></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0"><i class="fas fa-calculator me-2"></i>Final Calculation</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <div class="p-3 bg-success text-white rounded">
+                                    <h5>Gross Salary</h5>
+                                    <h3>$${grossSalary?.toLocaleString() || '0'}</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-danger text-white rounded">
+                                    <h5>Total Deductions</h5>
+                                    <h3>$${totalDeductions?.toLocaleString() || '0'}</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-primary text-white rounded">
+                                    <h5>Net Salary</h5>
+                                    <h3>$${payroll.net_salary?.toLocaleString() || '0'}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Working Days:</strong> ${payroll.working_days || 'N/A'}</p>
+                                    <p><strong>Present Days:</strong> ${payroll.present_days || 'N/A'}</p>
+                                    <p><strong>Leave Days:</strong> ${payroll.leave_days || 'N/A'}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Overtime Hours:</strong> ${payroll.overtime_hours || '0'}</p>
+                                    <p><strong>Processed By:</strong> ${payroll.processed_by || 'System'}</p>
+                                    <p><strong>Created Date:</strong> ${payroll.created_date || 'N/A'}</p>
+                                </div>
+                            </div>
+                            ${payroll.remarks ? `<p><strong>Remarks:</strong> ${payroll.remarks}</p>` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('detailedPayrollModal'));
+    modal.show();
+}
+
+// Process deposit for payroll
+function processDeposit(payrollId) {
+    const payroll = payrollData.find(p => p.id === payrollId);
+    const employee = employees.find(emp => emp.id === payroll.employee_id);
+    
+    if (!payroll || !employee) {
+        showAlert('Payroll record not found', 'danger');
+        return;
+    }
+    
+    if (confirm(`Process salary deposit for ${employee.name}?\nAmount: $${payroll.net_salary.toLocaleString()}`)) {
+        // Simulate deposit processing
+        if (payroll.bank_details) {
+            payroll.bank_details.deposit_status = 'Deposited';
+            payroll.bank_details.deposit_date = new Date().toISOString().split('T')[0];
+            payroll.bank_details.transaction_id = `TXN${Date.now()}`;
+        }
+        payroll.status = 'Paid';
+        
+        renderPayrollTable();
+        showAlert(`✅ Deposit processed successfully for ${employee.name}`, 'success');
+    }
+}
+
+// View deposit details
+function viewDepositDetails(payrollId) {
+    const payroll = payrollData.find(p => p.id === payrollId);
+    const employee = employees.find(emp => emp.id === payroll.employee_id);
+    
+    if (!payroll || !employee) {
+        showAlert('Payroll record not found', 'danger');
+        return;
+    }
+    
+    const depositInfo = `
+        <strong>Employee:</strong> ${employee.name}<br>
+        <strong>Amount Deposited:</strong> $${payroll.net_salary.toLocaleString()}<br>
+        <strong>Bank:</strong> ${payroll.bank_details?.bank_name || 'N/A'}<br>
+        <strong>Account:</strong> ${payroll.bank_details?.account_number || 'N/A'}<br>
+        <strong>Deposit Date:</strong> ${payroll.bank_details?.deposit_date || 'N/A'}<br>
+        <strong>Transaction ID:</strong> ${payroll.bank_details?.transaction_id || 'N/A'}<br>
+        <strong>Status:</strong> ${payroll.bank_details?.deposit_status || payroll.status}
+    `;
+    
+    showAlert(depositInfo, 'info', 8000);
+}
+
+// Generate payslip
+function generatePayslip(payrollId) {
+    const payroll = payrollData.find(p => p.id === payrollId);
+    const employee = employees.find(emp => emp.id === payroll.employee_id);
+    
+    if (!payroll || !employee) {
+        showAlert('Payroll record not found', 'danger');
+        return;
+    }
+    
+    // Simulate payslip generation
+    showAlert(`📄 Generating payslip for ${employee.name} (${payroll.month})...`, 'info', 3000);
+    
+    setTimeout(() => {
+        showAlert(`✅ Payslip generated successfully for ${employee.name}`, 'success');
+    }, 2000);
+}
+
+// Bulk process deposits
+function bulkProcessDeposits() {
+    const checkboxes = document.querySelectorAll('input[name="payrollSelect"]:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    
+    if (selectedIds.length === 0) {
+        showAlert('Please select payroll records to process', 'warning');
+        return;
+    }
+    
+    if (confirm(`Process deposits for ${selectedIds.length} selected records?`)) {
+        let processedCount = 0;
+        
+        selectedIds.forEach(id => {
+            const payroll = payrollData.find(p => p.id === id);
+            if (payroll && (payroll.status === 'Pending' || payroll.bank_details?.deposit_status === 'Pending')) {
+                if (payroll.bank_details) {
+                    payroll.bank_details.deposit_status = 'Deposited';
+                    payroll.bank_details.deposit_date = new Date().toISOString().split('T')[0];
+                    payroll.bank_details.transaction_id = `TXN${Date.now() + Math.random() * 1000}`;
+                }
+                payroll.status = 'Paid';
+                processedCount++;
+            }
+        });
+        
+        renderPayrollTable();
+        clearPayrollSelection();
+        showAlert(`✅ Processed ${processedCount} deposits successfully`, 'success');
+    }
+}
+
+// Bulk generate payslips
+function bulkGeneratePayslips() {
+    const checkboxes = document.querySelectorAll('input[name="payrollSelect"]:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    
+    if (selectedIds.length === 0) {
+        showAlert('Please select payroll records to generate payslips', 'warning');
+        return;
+    }
+    
+    showAlert(`📄 Generating ${selectedIds.length} payslips...`, 'info', 3000);
+    
+    setTimeout(() => {
+        showAlert(`✅ Generated ${selectedIds.length} payslips successfully`, 'success');
+        clearPayrollSelection();
+    }, 2000);
+}
+
+// Clear payroll selection
+function clearPayrollSelection() {
+    document.querySelectorAll('input[name="payrollSelect"]').forEach(cb => cb.checked = false);
+    document.getElementById('selectAllPayroll').checked = false;
+    toggleBulkActions();
+}
+
+// Show payroll summary
+function showPayrollSummary() {
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const currentMonthPayroll = payrollData.filter(p => p.month === currentMonth);
+    
+    const summary = {
+        totalEmployees: currentMonthPayroll.length,
+        totalGross: currentMonthPayroll.reduce((sum, p) => sum + (p.gross_salary || p.net_salary || 0), 0),
+        totalDeductions: currentMonthPayroll.reduce((sum, p) => sum + (p.total_deductions || p.deductions + p.tax || 0), 0),
+        totalNet: currentMonthPayroll.reduce((sum, p) => sum + (p.net_salary || 0), 0),
+        deposited: currentMonthPayroll.filter(p => p.status === 'Paid' || p.bank_details?.deposit_status === 'Deposited').length,
+        pending: currentMonthPayroll.filter(p => p.status === 'Pending' || p.bank_details?.deposit_status === 'Pending').length
+    };
+    
+    const content = document.getElementById('payrollSummaryContent');
+    content.innerHTML = `
+        <div class="row text-center mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h4>${summary.totalEmployees}</h4>
+                        <p>Total Employees</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h4>${summary.deposited}</h4>
+                        <p>Deposits Completed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h4>${summary.pending}</h4>
+                        <p>Pending Deposits</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-dark table-striped">
+                    <tr><td><strong>Total Gross Salary</strong></td><td class="text-end"><strong>$${summary.totalGross.toLocaleString()}</strong></td></tr>
+                    <tr><td><strong>Total Deductions</strong></td><td class="text-end text-danger"><strong>$${summary.totalDeductions.toLocaleString()}</strong></td></tr>
+                    <tr><td><strong>Total Net Salary</strong></td><td class="text-end text-success"><strong>$${summary.totalNet.toLocaleString()}</strong></td></tr>
+                    <tr><td><strong>Average Gross Salary</strong></td><td class="text-end">$${Math.round(summary.totalGross / summary.totalEmployees || 0).toLocaleString()}</td></tr>
+                    <tr><td><strong>Average Net Salary</strong></td><td class="text-end">$${Math.round(summary.totalNet / summary.totalEmployees || 0).toLocaleString()}</td></tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <h6>Month: ${currentMonth}</h6>
+            <div class="progress mb-2">
+                <div class="progress-bar bg-success" style="width: ${(summary.deposited / summary.totalEmployees * 100)}%">
+                    ${Math.round(summary.deposited / summary.totalEmployees * 100)}% Deposited
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('payrollSummaryModal'));
+    modal.show();
+}
+
+// Enhanced export function
+function exportDetailedPayrollReport() {
+    const monthFilter = document.getElementById('payrollMonthFilter').value;
+    const statusFilter = document.getElementById('payrollStatusFilter').value;
+    const employeeFilter = document.getElementById('payrollEmployeeFilter').value;
+    
+    let filteredPayroll = payrollData;
+    
+    if (monthFilter) filteredPayroll = filteredPayroll.filter(p => p.month === monthFilter);
+    if (statusFilter) filteredPayroll = filteredPayroll.filter(p => p.status === statusFilter);
+    if (employeeFilter) filteredPayroll = filteredPayroll.filter(p => p.employee_id == employeeFilter);
+    
+    // Create detailed CSV content
+    const headers = [
+        'Employee Name', 'Employee ID', 'Month', 'Pay Period',
+        'Basic Salary', 'HRA', 'Allowances', 'Transport Allowance', 'Medical Allowance', 'Food Allowance',
+        'Overtime', 'Bonus', 'Gross Salary',
+        'PF Deduction', 'ESI Deduction', 'Professional Tax', 'Insurance Premium', 'Loan Deduction', 'Other Deductions', 'Income Tax', 'Total Deductions',
+        'Net Salary', 'Bank Name', 'Account Number', 'Deposit Status', 'Deposit Date', 'Transaction ID'
+    ];
+    
+    const csvContent = [
+        headers.join(','),
+        ...filteredPayroll.map(payroll => {
+            const employee = employees.find(emp => emp.id === payroll.employee_id);
+            return [
+                employee ? employee.name : 'Unknown',
+                employee ? employee.employee_id : 'N/A',
+                payroll.month,
+                payroll.pay_period || payroll.month,
+                payroll.basic_salary || 0,
+                payroll.hra || 0,
+                payroll.allowances || 0,
+                payroll.transport_allowance || 0,
+                payroll.medical_allowance || 0,
+                payroll.food_allowance || 0,
+                payroll.overtime || 0,
+                payroll.bonus || 0,
+                payroll.gross_salary || (payroll.basic_salary + payroll.hra + payroll.allowances + payroll.overtime + payroll.bonus) || 0,
+                payroll.pf_deduction || 0,
+                payroll.esi_deduction || 0,
+                payroll.professional_tax || 0,
+                payroll.insurance_premium || 0,
+                payroll.loan_deduction || 0,
+                payroll.other_deductions || payroll.deductions || 0,
+                payroll.income_tax || payroll.tax || 0,
+                payroll.total_deductions || (payroll.deductions + payroll.tax) || 0,
+                payroll.net_salary || 0,
+                payroll.bank_details?.bank_name || 'N/A',
+                payroll.bank_details?.account_number || 'N/A',
+                payroll.bank_details?.deposit_status || payroll.status || 'Pending',
+                payroll.bank_details?.deposit_date || 'N/A',
+                payroll.bank_details?.transaction_id || 'N/A'
+            ].join(',');
+        })
+    ].join('\n');
+    
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `detailed_payroll_report_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    showAlert('📊 Detailed payroll report exported successfully', 'success');
+}
+
+// Update the populateEmployeeDropdowns function to include payroll employee filter
+function populateEmployeeDropdowns() {
+    const dropdowns = [
+        'attendanceEmployee',
+        'leaveEmployee',
+        'attendanceEmployeeFilter',
+        'payrollEmployee',
+        'payrollEmployeeFilter'  // Add this new dropdown
+    ];
+    
+    dropdowns.forEach(dropdownId => {
+        const dropdown = document.getElementById(dropdownId);
+        if (dropdown) {
+            // Clear existing options (except first one)
+            while (dropdown.children.length > 1) {
+                dropdown.removeChild(dropdown.lastChild);
+            }
+            
+            // Add employee options
+            employees.forEach(employee => {
+                const option = document.createElement('option');
+                option.value = employee.id;
+                option.textContent = employee.name;
+                dropdown.appendChild(option);
+            });
+        }
+    });
+}
+
+// Enhanced Attendance Management Functions
+
+// Enhanced render attendance table
+function renderAttendanceTable() {
+    const tableBody = document.getElementById('attendanceTableBody');
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = '';
+
+    attendance.slice(0, 50).forEach(record => {
+        const employee = employees.find(emp => emp.id === record.employee_id);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <div class="d-flex align-items-center">
+                    <div>
+                        <strong>${employee ? employee.name : 'Unknown'}</strong><br>
+                        <small class="text-muted">${employee ? employee.employee_id : 'N/A'}</small>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <span class="badge bg-secondary">${record.date}</span><br>
+                <small class="text-muted">${new Date(record.date).toLocaleDateString('en-US', { weekday: 'short' })}</small>
+            </td>
+            <td>
+                <span class="badge ${getAttendanceStatusBadgeClass(record.status)}">${record.status}</span>
+            </td>
+            <td>
+                <span class="text-success">${record.check_in || 'N/A'}</span>
+            </td>
+            <td>
+                <span class="text-danger">${record.check_out || 'N/A'}</span>
+            </td>
+            <td>
+                <strong>${record.hours_worked}h</strong>
+                ${record.overtime_hours ? `<br><small class="text-warning">+${record.overtime_hours}h OT</small>` : ''}
+            </td>
+            <td>
+                <small class="text-muted">${record.remarks || 'No remarks'}</small>
+            </td>
+            <td>
+                <div class="btn-group-vertical" role="group">
+                    <button class="btn btn-sm btn-outline-warning mb-1" onclick="editAttendance(${record.id})" title="Edit Attendance">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteAttendance(${record.id})" title="Delete Attendance">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+    
+    updateAttendanceStatistics();
+}
+
+// Get attendance status badge class
+function getAttendanceStatusBadgeClass(status) {
+    switch(status) {
+        case 'Present': return 'bg-success';
+        case 'Absent': return 'bg-danger';
+        case 'Late': return 'bg-warning';
+        case 'Half Day': return 'bg-info';
+        case 'Work From Home': return 'bg-primary';
+        default: return 'bg-secondary';
+    }
+}
+
+// Update attendance statistics
+function updateAttendanceStatistics() {
+    const today = new Date().toISOString().split('T')[0];
+    const todayAttendance = attendance.filter(a => a.date === today);
+    
+    const presentCount = todayAttendance.filter(a => a.status === 'Present' || a.status === 'Work From Home').length;
+    const absentCount = todayAttendance.filter(a => a.status === 'Absent').length;
+    const lateCount = todayAttendance.filter(a => a.status === 'Late').length;
+    const totalEmployees = employees.length;
+    const attendanceRate = totalEmployees > 0 ? Math.round((presentCount / totalEmployees) * 100) : 0;
+    
+    document.getElementById('presentTodayCount').textContent = presentCount;
+    document.getElementById('absentTodayCount').textContent = absentCount;
+    document.getElementById('lateTodayCount').textContent = lateCount;
+    document.getElementById('attendanceRate').textContent = attendanceRate + '%';
+}
+
+// Update attendance fields based on status
+function updateAttendanceFields() {
+    const status = document.getElementById('attendanceStatus').value;
+    const hoursWorked = document.getElementById('hoursWorked');
+    const checkInTime = document.getElementById('checkInTime');
+    const checkOutTime = document.getElementById('checkOutTime');
+    const timeFields = document.getElementById('timeFields');
+    
+    switch(status) {
+        case 'Present':
+            hoursWorked.value = 8;
+            checkInTime.value = '09:00';
+            checkOutTime.value = '18:00';
+            timeFields.style.display = 'flex';
+            break;
+        case 'Late':
+            hoursWorked.value = 7.5;
+            checkInTime.value = '10:00';
+            checkOutTime.value = '18:00';
+            timeFields.style.display = 'flex';
+            break;
+        case 'Half Day':
+            hoursWorked.value = 4;
+            checkInTime.value = '09:00';
+            checkOutTime.value = '13:00';
+            timeFields.style.display = 'flex';
+            break;
+        case 'Work From Home':
+            hoursWorked.value = 8;
+            checkInTime.value = '09:30';
+            checkOutTime.value = '18:30';
+            timeFields.style.display = 'flex';
+            break;
+        case 'Absent':
+            hoursWorked.value = 0;
+            checkInTime.value = '';
+            checkOutTime.value = '';
+            timeFields.style.display = 'none';
+            break;
+        default:
+            timeFields.style.display = 'flex';
+    }
+}
+
+// Add attendance function
+async function addAttendance() {
+    const employeeId = document.getElementById('attendanceEmployee').value;
+    const date = document.getElementById('attendanceDate').value;
+    const status = document.getElementById('attendanceStatus').value;
+    const hoursWorked = document.getElementById('hoursWorked').value;
+    const checkInTime = document.getElementById('checkInTime').value;
+    const checkOutTime = document.getElementById('checkOutTime').value;
+    const remarks = document.getElementById('attendanceRemarks').value;
+
+    if (!employeeId || !date || !status) {
+        showAlert('Please fill in all required fields', 'warning');
+        return;
+    }
+
+    const attendanceData = {
+        employee_id: parseInt(employeeId),
+        date: date,
+        status: status,
+        hours_worked: parseFloat(hoursWorked) || 0,
+        check_in: checkInTime || null,
+        check_out: checkOutTime || null,
+        remarks: remarks || ''
+    };
+
+    try {
+        const response = await fetch('/api/attendance', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(attendanceData)
+        });
+
+        if (response.ok) {
+            const newAttendance = await response.json();
+            attendance.push(newAttendance);
+            renderAttendanceTable();
+            
+            // Close modal and reset form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addAttendanceModal'));
+            modal.hide();
+            document.getElementById('addAttendanceForm').reset();
+            
+            const employee = employees.find(emp => emp.id === parseInt(employeeId));
+            showAlert(`✅ Attendance marked successfully for ${employee ? employee.name : 'employee'}`, 'success');
+        } else {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to mark attendance');
+        }
+    } catch (error) {
+        console.error('Error marking attendance:', error);
+        showAlert(`❌ Error marking attendance: ${error.message}`, 'danger');
+    }
+}
+
+// Edit attendance function
+function editAttendance(attendanceId) {
+    const attendanceRecord = attendance.find(a => a.id === attendanceId);
+    const employee = employees.find(emp => emp.id === attendanceRecord.employee_id);
+    
+    if (!attendanceRecord || !employee) {
+        showAlert('Attendance record not found', 'danger');
+        return;
+    }
+    
+    // Populate the form with existing data
+    document.getElementById('attendanceEmployee').value = attendanceRecord.employee_id;
+    document.getElementById('attendanceDate').value = attendanceRecord.date;
+    document.getElementById('attendanceStatus').value = attendanceRecord.status;
+    document.getElementById('hoursWorked').value = attendanceRecord.hours_worked;
+    document.getElementById('checkInTime').value = attendanceRecord.check_in || '';
+    document.getElementById('checkOutTime').value = attendanceRecord.check_out || '';
+    document.getElementById('attendanceRemarks').value = attendanceRecord.remarks || '';
+    
+    // Update fields based on status
+    updateAttendanceFields();
+    
+    // Store the attendance ID for updating
+    document.getElementById('addAttendanceModal').setAttribute('data-edit-id', attendanceId);
+    
+    // Change modal title and button text
+    document.querySelector('#addAttendanceModal .modal-title').innerHTML = `
+        <i class="fas fa-edit me-2"></i>Edit Attendance - ${employee.name}
+    `;
+    document.querySelector('#addAttendanceModal .btn-primary').innerHTML = `
+        <i class="fas fa-save me-2"></i>Update Attendance
+    `;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('addAttendanceModal'));
+    modal.show();
+}
+
+// Delete attendance function
+async function deleteAttendance(attendanceId) {
+    const attendanceRecord = attendance.find(a => a.id === attendanceId);
+    const employee = employees.find(emp => emp.id === attendanceRecord.employee_id);
+    
+    if (!confirm(`Are you sure you want to delete attendance record for ${employee ? employee.name : 'this employee'} on ${attendanceRecord.date}?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/attendance/${attendanceId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            // Remove from local array
+            const index = attendance.findIndex(a => a.id === attendanceId);
+            if (index !== -1) {
+                attendance.splice(index, 1);
+            }
+            
+            renderAttendanceTable();
+            showAlert('✅ Attendance record deleted successfully', 'success');
+        } else {
+            throw new Error('Failed to delete attendance record');
+        }
+    } catch (error) {
+        console.error('Error deleting attendance:', error);
+        showAlert('❌ Error deleting attendance record', 'danger');
+    }
+}
+
+// Filter attendance function
+function filterAttendance() {
+    const employeeFilter = document.getElementById('attendanceEmployeeFilter').value;
+    const dateFilter = document.getElementById('attendanceDateFilter').value;
+    const statusFilter = document.getElementById('attendanceStatusFilter').value;
+    
+    let filteredAttendance = [...attendance];
+    
+    if (employeeFilter) {
+        filteredAttendance = filteredAttendance.filter(a => a.employee_id == employeeFilter);
+    }
+    
+    if (dateFilter) {
+        filteredAttendance = filteredAttendance.filter(a => a.date === dateFilter);
+    }
+    
+    if (statusFilter) {
+        filteredAttendance = filteredAttendance.filter(a => a.status === statusFilter);
+    }
+    
+    // Temporarily replace attendance data for rendering
+    const originalAttendance = [...attendance];
+    attendance = filteredAttendance;
+    renderAttendanceTable();
+    attendance = originalAttendance;
+}
+
+// Load bulk attendance employees
+function loadBulkAttendanceEmployees() {
+    const tableBody = document.getElementById('bulkAttendanceTableBody');
+    if (!tableBody) return;
+    
+    const date = document.getElementById('bulkAttendanceDate').value;
+    const defaultStatus = document.getElementById('bulkAttendanceStatus').value;
+    const defaultHours = document.getElementById('bulkHoursWorked').value;
+    
+    tableBody.innerHTML = '';
+    
+    employees.forEach(employee => {
+        // Check if attendance already exists for this date
+        const existingAttendance = attendance.find(a => 
+            a.employee_id === employee.id && a.date === date
+        );
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <input type="checkbox" name="bulkEmployeeSelect" value="${employee.id}" 
+                       ${existingAttendance ? 'checked' : ''}>
+            </td>
+            <td>
+                <strong>${employee.name}</strong><br>
+                <small class="text-muted">${employee.employee_id}</small>
+            </td>
+            <td>${employee.department}</td>
+            <td>
+                <select class="form-control form-control-sm" id="status_${employee.id}">
+                    <option value="Present" ${(existingAttendance?.status || defaultStatus) === 'Present' ? 'selected' : ''}>Present</option>
+                    <option value="Absent" ${(existingAttendance?.status || defaultStatus) === 'Absent' ? 'selected' : ''}>Absent</option>
+                    <option value="Late" ${(existingAttendance?.status || defaultStatus) === 'Late' ? 'selected' : ''}>Late</option>
+                    <option value="Half Day" ${(existingAttendance?.status || defaultStatus) === 'Half Day' ? 'selected' : ''}>Half Day</option>
+                    <option value="Work From Home" ${(existingAttendance?.status || defaultStatus) === 'Work From Home' ? 'selected' : ''}>Work From Home</option>
+                </select>
+            </td>
+            <td>
+                <input type="number" class="form-control form-control-sm" id="hours_${employee.id}" 
+                       value="${existingAttendance?.hours_worked || defaultHours}" min="0" max="24" step="0.5">
+            </td>
+            <td>
+                <input type="time" class="form-control form-control-sm" id="checkin_${employee.id}" 
+                       value="${existingAttendance?.check_in || '09:00'}">
+            </td>
+            <td>
+                <input type="time" class="form-control form-control-sm" id="checkout_${employee.id}" 
+                       value="${existingAttendance?.check_out || '18:00'}">
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+// Toggle all employees in bulk attendance
+function toggleAllEmployees() {
+    const selectAll = document.getElementById('selectAllEmployees');
+    const checkboxes = document.querySelectorAll('input[name="bulkEmployeeSelect"]');
+    
+    checkboxes.forEach(cb => {
+        cb.checked = selectAll.checked;
+    });
+}
+
+// Process bulk attendance
+async function processBulkAttendance() {
+    const date = document.getElementById('bulkAttendanceDate').value;
+    const selectedEmployees = document.querySelectorAll('input[name="bulkEmployeeSelect"]:checked');
+    
+    if (!date) {
+        showAlert('Please select a date', 'warning');
+        return;
+    }
+    
+    if (selectedEmployees.length === 0) {
+        showAlert('Please select at least one employee', 'warning');
+        return;
+    }
+    
+    if (!confirm(`Mark attendance for ${selectedEmployees.length} employees on ${date}?`)) {
+        return;
+    }
+    
+    const attendanceRecords = [];
+    let successCount = 0;
+    let errorCount = 0;
+    
+    for (const checkbox of selectedEmployees) {
+        const employeeId = parseInt(checkbox.value);
+        const status = document.getElementById(`status_${employeeId}`).value;
+        const hours = parseFloat(document.getElementById(`hours_${employeeId}`).value);
+        const checkIn = document.getElementById(`checkin_${employeeId}`).value;
+        const checkOut = document.getElementById(`checkout_${employeeId}`).value;
+        
+        const attendanceData = {
+            employee_id: employeeId,
+            date: date,
+            status: status,
+            hours_worked: hours,
+            check_in: status !== 'Absent' ? checkIn : null,
+            check_out: status !== 'Absent' ? checkOut : null,
+            remarks: 'Bulk attendance entry'
+        };
+        
+        try {
+            const response = await fetch('/api/attendance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(attendanceData)
+            });
+            
+            if (response.ok) {
+                const newAttendance = await response.json();
+                attendance.push(newAttendance);
+                successCount++;
+            } else {
+                errorCount++;
+            }
+        } catch (error) {
+            console.error('Error marking attendance:', error);
+            errorCount++;
+        }
+    }
+    
+    // Close modal and refresh data
+    const modal = bootstrap.Modal.getInstance(document.getElementById('bulkAttendanceModal'));
+    modal.hide();
+    
+    renderAttendanceTable();
+    loadAttendance(); // Refresh from server
+    
+    if (successCount > 0) {
+        showAlert(`✅ Successfully marked attendance for ${successCount} employees`, 'success');
+    }
+    
+    if (errorCount > 0) {
+        showAlert(`⚠️ Failed to mark attendance for ${errorCount} employees`, 'warning');
+    }
+}
+
+// Export attendance report
+function exportAttendanceReport() {
+    const employeeFilter = document.getElementById('attendanceEmployeeFilter').value;
+    const dateFilter = document.getElementById('attendanceDateFilter').value;
+    const statusFilter = document.getElementById('attendanceStatusFilter').value;
+    
+    let filteredAttendance = [...attendance];
+    
+    if (employeeFilter) filteredAttendance = filteredAttendance.filter(a => a.employee_id == employeeFilter);
+    if (dateFilter) filteredAttendance = filteredAttendance.filter(a => a.date === dateFilter);
+    if (statusFilter) filteredAttendance = filteredAttendance.filter(a => a.status === statusFilter);
+    
+    // Create CSV content
+    const headers = [
+        'Employee Name', 'Employee ID', 'Date', 'Day', 'Status', 
+        'Check-in Time', 'Check-out Time', 'Hours Worked', 'Overtime Hours', 'Remarks'
+    ];
+    
+    const csvContent = [
+        headers.join(','),
+        ...filteredAttendance.map(record => {
+            const employee = employees.find(emp => emp.id === record.employee_id);
+            const dayName = new Date(record.date).toLocaleDateString('en-US', { weekday: 'long' });
+            return [
+                employee ? employee.name : 'Unknown',
+                employee ? employee.employee_id : 'N/A',
+                record.date,
+                dayName,
+                record.status,
+                record.check_in || 'N/A',
+                record.check_out || 'N/A',
+                record.hours_worked || 0,
+                record.overtime_hours || 0,
+                record.remarks || 'No remarks'
+            ].join(',');
+        })
+    ].join('\n');
+    
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `attendance_report_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    showAlert('📊 Attendance report exported successfully', 'success');
+}
+
+// Event listeners for bulk attendance modal
+document.addEventListener('DOMContentLoaded', function() {
+    // Load bulk attendance employees when date or status changes
+    const bulkDateInput = document.getElementById('bulkAttendanceDate');
+    const bulkStatusInput = document.getElementById('bulkAttendanceStatus');
+    const bulkHoursInput = document.getElementById('bulkHoursWorked');
+    
+    if (bulkDateInput) {
+        bulkDateInput.addEventListener('change', loadBulkAttendanceEmployees);
+    }
+    
+    if (bulkStatusInput) {
+        bulkStatusInput.addEventListener('change', loadBulkAttendanceEmployees);
+    }
+    
+    if (bulkHoursInput) {
+        bulkHoursInput.addEventListener('change', loadBulkAttendanceEmployees);
+    }
+    
+    // Reset attendance modal when closed
+    const attendanceModal = document.getElementById('addAttendanceModal');
+    if (attendanceModal) {
+        attendanceModal.addEventListener('hidden.bs.modal', function() {
+            document.getElementById('addAttendanceForm').reset();
+            document.getElementById('addAttendanceModal').removeAttribute('data-edit-id');
+            document.querySelector('#addAttendanceModal .modal-title').innerHTML = `
+                <i class="fas fa-calendar-check me-2"></i>Mark Employee Attendance
+            `;
+            document.querySelector('#addAttendanceModal .btn-primary').innerHTML = `
+                <i class="fas fa-check me-2"></i>Mark Attendance
+            `;
+            document.getElementById('timeFields').style.display = 'flex';
+        });
+    }
+    
+    // Set today's date as default in attendance modals
+    const today = new Date().toISOString().split('T')[0];
+    const attendanceDateInput = document.getElementById('attendanceDate');
+    const bulkAttendanceDateInput = document.getElementById('bulkAttendanceDate');
+    
+    if (attendanceDateInput) attendanceDateInput.value = today;
+    if (bulkAttendanceDateInput) bulkAttendanceDateInput.value = today;
+});

@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('attendanceDate').value = today;
     document.getElementById('attendanceDateFilter').value = today;
+    
+    // Reset employee modal when closed
+    const employeeModal = document.getElementById('addEmployeeModal');
+    if (employeeModal) {
+        employeeModal.addEventListener('hidden.bs.modal', function() {
+            resetEmployeeModal();
+        });
+    }
 });
 
 // Section management
@@ -126,8 +134,11 @@ function updateDashboardStats() {
     loadDashboardStats();
 }
 
-// Add new employee
+// Add new employee or update existing employee
 async function addEmployee() {
+    const editId = document.getElementById('addEmployeeModal').getAttribute('data-edit-id');
+    const isEdit = editId && editId !== 'null';
+    
     const name = document.getElementById('employeeName').value;
     const email = document.getElementById('employeeEmail').value;
     const role = document.getElementById('employeeRole').value;
@@ -135,48 +146,85 @@ async function addEmployee() {
     const salary = document.getElementById('employeeSalary').value;
     const phone = document.getElementById('employeePhone').value;
     const address = document.getElementById('employeeAddress').value;
+    const status = document.getElementById('employeeStatus').value;
 
     if (!name || !email || !role || !department || !salary) {
         showAlert('Please fill in all required fields', 'warning');
         return;
     }
 
+    const employeeData = {
+        name, 
+        email, 
+        role, 
+        department, 
+        salary: parseInt(salary),
+        phone,
+        address,
+        status: status || 'Active'
+    };
+
     try {
-        const response = await fetch('/api/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-                name, 
-                email, 
-                role, 
-                department, 
-                salary: parseInt(salary),
-                phone,
-                address
-            })
-        });
+        let response;
+        if (isEdit) {
+            // Update existing employee
+            response = await fetch(`/api/users/${editId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(employeeData)
+            });
+        } else {
+            // Add new employee
+            response = await fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(employeeData)
+            });
+        }
 
         if (response.ok) {
-            const newEmployee = await response.json();
-            employees.push(newEmployee);
+            const updatedEmployee = await response.json();
+            
+            if (isEdit) {
+                // Update the employee in the local array
+                const index = employees.findIndex(emp => emp.id == editId);
+                if (index !== -1) {
+                    employees[index] = updatedEmployee;
+                }
+            } else {
+                // Add new employee to local array
+                employees.push(updatedEmployee);
+            }
+            
             renderEmployeeTable();
             updateDashboardStats();
             
             // Close modal and reset form
             const modal = bootstrap.Modal.getInstance(document.getElementById('addEmployeeModal'));
             modal.hide();
-            document.getElementById('addEmployeeForm').reset();
+            resetEmployeeModal();
             
-            showAlert('Employee added successfully', 'success');
+            showAlert(`✅ Employee ${isEdit ? 'updated' : 'added'} successfully!`, 'success');
         } else {
-            throw new Error('Failed to add employee');
+            const error = await response.json();
+            throw new Error(error.error || `Failed to ${isEdit ? 'update' : 'add'} employee`);
         }
     } catch (error) {
-        console.error('Error adding employee:', error);
-        showAlert('Error adding employee', 'danger');
+        console.error('Error with employee:', error);
+        showAlert(`❌ Error ${isEdit ? 'updating' : 'adding'} employee: ${error.message}`, 'danger');
     }
+}
+
+// Reset employee modal to add mode
+function resetEmployeeModal() {
+    document.getElementById('addEmployeeForm').reset();
+    document.getElementById('addEmployeeModal').removeAttribute('data-edit-id');
+    document.querySelector('#addEmployeeModal .modal-title').textContent = 'Add New Employee';
+    document.querySelector('#addEmployeeModal .btn-primary').textContent = 'Add Employee';
 }
 
 // View employee details
@@ -224,7 +272,7 @@ async function deleteEmployee(id) {
     }
 }
 
-// Edit employee (placeholder function)
+// Edit employee
 function editEmployee(id) {
     const employee = employees.find(emp => emp.id === id);
     if (employee) {
@@ -236,15 +284,18 @@ function editEmployee(id) {
         document.getElementById('employeeSalary').value = employee.salary;
         document.getElementById('employeePhone').value = employee.phone || '';
         document.getElementById('employeeAddress').value = employee.address || '';
+        document.getElementById('employeeStatus').value = employee.status || 'Active';
+        
+        // Store the employee ID for updating
+        document.getElementById('addEmployeeModal').setAttribute('data-edit-id', id);
+        
+        // Change modal title and button text
+        document.querySelector('#addEmployeeModal .modal-title').textContent = 'Edit Employee';
+        document.querySelector('#addEmployeeModal .btn-primary').textContent = 'Update Employee';
         
         // Show modal
         const modal = new bootstrap.Modal(document.getElementById('addEmployeeModal'));
         modal.show();
-        
-        // Change modal title and button text
-        document.querySelector('#addEmployeeModal .modal-title').textContent = 'Edit Employee';
-        
-        showAlert('Edit functionality coming soon!', 'info');
     }
 }
 
