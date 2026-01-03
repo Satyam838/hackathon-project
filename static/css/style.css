@@ -1,0 +1,721 @@
+/* Dark Theme Custom Styles */
+:root {
+    --dark-bg: #121212;
+    --dark-surface: #1e1e1e;
+    --dark-primary: #bb86fc;
+    --dark-secondary: #03dac6;
+    --dark-text: #ffffff;
+    --dark-text-secondary: #b3b3b3;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Custom card styling */
+.card {
+    background-color: var(--dark-surface);
+    border: 1px solid #333;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Navigation styling */
+.navbar-dark {
+    background-color: var(--dark-surface) !important;
+    border-bottom: 1px solid #333;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: var(--dark-primary) !important;
+}
+
+/* Table styling */
+.table-dark {
+    --bs-table-bg: var(--dark-surface);
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: var(--dark-primary);
+    border-color: var(--dark-primary);
+    color: #000;
+}
+
+.btn-primary:hover {
+    background-color: #9965f4;
+    border-color: #9965f4;
+}
+
+.btn-success {
+    background-color: var(--dark-secondary);
+    border-color: var(--dark-secondary);
+    color: #000;
+}
+
+.btn-danger {
+    background-color: #cf6679;
+    border-color: #cf6679;
+}
+
+/* Modal styling */
+.modal-content {
+    background-color: var(--dark-surface);
+    border: 1px solid #333;
+}
+
+.modal-header {
+    border-bottom: 1px solid #333;
+}
+
+.modal-footer {
+    border-top: 1px solid #333;
+}
+
+/* Form styling */
+.form-control {
+    background-color: #2d2d2d;
+    border: 1px solid #444;
+    color: var(--dark-text);
+}
+
+.form-control:focus {
+    background-color: #2d2d2d;
+    border-color: var(--dark-primary);
+    color: var(--dark-text);
+    box-shadow: 0 0 0 0.2rem rgba(187, 134, 252, 0.25);
+}
+
+.form-label {
+    color: var(--dark-text);
+}
+
+/* Dashboard cards */
+.card.bg-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.card.bg-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+}
+
+.card.bg-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+}
+
+/* Animation for loading */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .card-body h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+/* Section management */
+.content-section {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Progress bars in reports */
+.progress {
+    background-color: #2d2d2d;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* Enhanced table styling */
+.table th {
+    border-top: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Badge styling */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Modal enhancements */
+.modal-lg {
+    max-width: 800px;
+}
+
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Filter section styling */
+.card-body .row.mb-3 {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px !important;
+}
+
+/* Button group styling */
+.btn-group-sm > .btn, .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.2rem;
+}
+
+/* Alert positioning */
+.alert.position-fixed {
+    top: 80px !important;
+    right: 20px;
+    z-index: 1060;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Dashboard card icons */
+.card.bg-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+/* Responsive table improvements */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .btn-sm {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.75rem;
+    }
+    
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.25em 0.5em;
+    }
+}
+
+/* Loading states */
+.btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn.loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Enhanced form styling */
+.form-control:invalid {
+    border-color: #dc3545;
+}
+
+.form-control:valid {
+    border-color: #28a745;
+}
+
+/* Navigation active state */
+.navbar-nav .nav-link.active {
+    color: var(--dark-primary) !important;
+    font-weight: 600;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--dark-secondary) !important;
+    transition: color 0.2s ease;
+}
+/* Login page styles */
+.login-body {
+    background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+    min-height: 100vh;
+}
+
+.login-card {
+    background-color: var(--dark-surface);
+    border: 1px solid #333;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+}
+
+.login-card .card-body {
+    padding: 3rem;
+}
+
+.login-card .text-primary {
+    color: var(--dark-primary) !important;
+}
+
+.input-group-text {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: var(--dark-text);
+}
+
+/* Employee profile styles */
+.profile-photo-container {
+    position: relative;
+}
+
+.profile-photo-container img {
+    border: 4px solid var(--dark-primary);
+    object-fit: cover;
+}
+
+.form-control-editable {
+    border-color: var(--dark-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(187, 134, 252, 0.25) !important;
+}
+
+/* Document cards */
+.card .card-body h6 {
+    color: var(--dark-text);
+}
+
+.card .card-text {
+    color: var(--dark-text-secondary);
+}
+
+/* Payroll table enhancements */
+.table td strong {
+    color: var(--dark-primary);
+}
+
+/* Status badges */
+.badge.bg-success {
+    background-color: #28a745 !important;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.badge.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6c757d !important;
+}
+
+/* Navigation enhancements */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.dropdown-menu {
+    background-color: var(--dark-surface);
+    border: 1px solid #333;
+}
+
+.dropdown-item {
+    color: var(--dark-text);
+}
+
+.dropdown-item:hover {
+    background-color: #333;
+    color: var(--dark-text);
+}
+
+/* Card hover effects */
+.card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Button enhancements */
+.btn-outline-primary:hover {
+    background-color: var(--dark-primary);
+    border-color: var(--dark-primary);
+    color: #000;
+}
+
+.btn-outline-success:hover {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-outline-warning:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-info:hover {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+/* Table row hover effects */
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.075);
+}
+
+/* Alert positioning for different screen sizes */
+@media (max-width: 768px) {
+    .alert.position-fixed {
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        min-width: auto !important;
+    }
+    
+    .login-card .card-body {
+        padding: 2rem;
+    }
+}
+
+/* Loading spinner for buttons */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid transparent;
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Profile section enhancements */
+.content-section {
+    min-height: 400px;
+}
+
+/* Document upload area */
+.document-upload-area {
+    border: 2px dashed #444;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.document-upload-area:hover {
+    border-color: var(--dark-primary);
+}
+
+/* Salary structure display */
+.salary-breakdown {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.salary-item {
+    display: flex;
+    justify-content: between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #333;
+}
+
+.salary-item:last-child {
+    border-bottom: none;
+    font-weight: bold;
+    color: var(--dark-primary);
+}
+
+/* Attendance calendar view */
+.attendance-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #333;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.calendar-day {
+    background-color: var(--dark-surface);
+    padding: 0.5rem;
+    text-align: center;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-day.present {
+    background-color: rgba(40, 167, 69, 0.3);
+}
+
+.calendar-day.absent {
+    background-color: rgba(220, 53, 69, 0.3);
+}
+
+.calendar-day.late {
+    background-color: rgba(255, 193, 7, 0.3);
+}
+
+/* Print styles for payslips */
+@media print {
+    .navbar, .btn, .modal {
+        display: none !important;
+    }
+    
+    .container {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}
+/* Light Theme Styles */
+[data-bs-theme="light"] {
+    --light-bg: #ffffff;
+    --light-surface: #f8f9fa;
+    --light-primary: #0d6efd;
+    --light-secondary: #6c757d;
+    --light-text: #212529;
+    --light-text-secondary: #6c757d;
+}
+
+[data-bs-theme="light"] body {
+    background-color: var(--light-bg);
+    color: var(--light-text);
+}
+
+[data-bs-theme="light"] .login-body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+[data-bs-theme="light"] .card {
+    background-color: var(--light-surface);
+    border: 1px solid #dee2e6;
+    color: var(--light-text);
+}
+
+[data-bs-theme="light"] .navbar-dark {
+    background-color: var(--light-surface) !important;
+    border-bottom: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .navbar-brand {
+    color: var(--light-primary) !important;
+}
+
+[data-bs-theme="light"] .nav-link {
+    color: var(--light-text) !important;
+}
+
+[data-bs-theme="light"] .nav-link:hover {
+    color: var(--light-primary) !important;
+}
+
+[data-bs-theme="light"] .nav-link.active {
+    color: var(--light-primary) !important;
+}
+
+[data-bs-theme="light"] .table-dark {
+    --bs-table-bg: var(--light-surface);
+    --bs-table-striped-bg: rgba(0, 0, 0, 0.05);
+    color: var(--light-text);
+}
+
+[data-bs-theme="light"] .table-dark th,
+[data-bs-theme="light"] .table-dark td {
+    border-color: #dee2e6;
+}
+
+[data-bs-theme="light"] .form-control {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    color: var(--light-text);
+}
+
+[data-bs-theme="light"] .form-control:focus {
+    background-color: #ffffff;
+    border-color: var(--light-primary);
+    color: var(--light-text);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+[data-bs-theme="light"] .modal-content {
+    background-color: var(--light-surface);
+    border: 1px solid #dee2e6;
+    color: var(--light-text);
+}
+
+[data-bs-theme="light"] .modal-header {
+    border-bottom: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .modal-footer {
+    border-top: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .dropdown-menu {
+    background-color: var(--light-surface);
+    border: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .dropdown-item {
+    color: var(--light-text);
+}
+
+[data-bs-theme="light"] .dropdown-item:hover {
+    background-color: #e9ecef;
+    color: var(--light-text);
+}
+
+[data-bs-theme="light"] .input-group-text {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: var(--light-text);
+}
+
+[data-bs-theme="light"] .login-card {
+    background-color: var(--light-surface);
+    border: 1px solid #dee2e6;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="light"] .progress {
+    background-color: #e9ecef;
+}
+
+[data-bs-theme="light"] .salary-breakdown {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="light"] .salary-item {
+    border-bottom: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .salary-item:last-child {
+    color: var(--light-primary);
+}
+
+/* Theme toggle button */
+#themeToggle {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+#themeToggle:hover {
+    transform: scale(1.1);
+}
+
+/* Light theme specific adjustments */
+[data-bs-theme="light"] .alert {
+    border: 1px solid;
+}
+
+[data-bs-theme="light"] .alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+[data-bs-theme="light"] .alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+[data-bs-theme="light"] .alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+[data-bs-theme="light"] .alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+/* Smooth theme transition */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
